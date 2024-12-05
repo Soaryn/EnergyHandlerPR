@@ -10,13 +10,17 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.transfer.energy.EnergyBuffer;
 
 /**
  * Reference implementation of {@link IEnergyStorage}. Use/extend this or implement your own.
  *
  * Derived from the Redstone Flux power system designed by King Lemming and originally utilized in Thermal Expansion and related mods.
  * Created with consent and permission of King Lemming and Team CoFH. Released with permission under LGPL 2.1 when bundled with Forge.
+ *
+ * @deprecated {@link EnergyBuffer}
  */
+@Deprecated(since = "1.21.4", forRemoval = true)
 public class EnergyStorage implements IEnergyStorage, INBTSerializable<Tag> {
     protected int energy;
     protected int capacity;

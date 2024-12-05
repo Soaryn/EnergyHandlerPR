@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-only
  */
 
-package net.neoforged.neoforge.energy;
+package net.neoforged.neoforge.transfer.energy;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.util.Mth;
@@ -11,19 +11,18 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.MutableDataComponentHolder;
+import net.neoforged.neoforge.transfer.TransferAction;
+import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
 
 /**
- * Variant of {@link EnergyStorage} for use with data components.
+ * Variant of {@link EnergyBuffer} for use with data components.
  * <p>
  * The actual data storage is managed by a data component, and all changes will write back to that component.
  * <p>
  * To use this class, register a new {@link DataComponentType} which holds an {@link Integer} for your item.
  * Then reference that component from your {@link ICapabilityProvider} passed to {@link RegisterCapabilitiesEvent#registerItem} to create an instance of this class.
- *
- * @deprecated {@link net.neoforged.neoforge.transfer.energy.ComponentEnergyBuffer}
  */
-@Deprecated(since = "1.21.4", forRemoval = true)
-public class ComponentEnergyStorage implements IEnergyStorage {
+public class ComponentEnergyBuffer implements IEnergyHandler.IEnergyHandlerModifiable {
     protected final MutableDataComponentHolder parent;
     protected final DataComponentType<Integer> energyComponent;
     protected final int capacity;
@@ -32,14 +31,14 @@ public class ComponentEnergyStorage implements IEnergyStorage {
 
     /**
      * Creates a new ComponentEnergyStorage with a data component as the backing store for the energy value.
-     * 
+     *
      * @param parent          The parent component holder, such as an {@link ItemStack}
      * @param energyComponent The data component referencing the stored energy of the item stack
      * @param capacity        The max capacity of the energy being stored
      * @param maxReceive      The max per-transfer power input rate
      * @param maxExtract      The max per-transfer power output rate
      */
-    public ComponentEnergyStorage(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity, int maxReceive, int maxExtract) {
+    public ComponentEnergyBuffer(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity, int maxReceive, int maxExtract) {
         this.parent = parent;
         this.energyComponent = energyComponent;
         this.capacity = capacity;
@@ -49,77 +48,99 @@ public class ComponentEnergyStorage implements IEnergyStorage {
 
     /**
      * Creates a new ItemEnergyStorage with a unified receive / extract rate.
-     * 
-     * @see ComponentEnergyStorage#ItemEnergyStorage(ItemStack, DataComponentType, int, int, int)
      */
-    public ComponentEnergyStorage(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity, int maxTransfer) {
+    public ComponentEnergyBuffer(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity, int maxTransfer) {
         this(parent, energyComponent, capacity, maxTransfer, maxTransfer);
     }
 
     /**
      * Creates a new ItemEnergyStorage with a transfer rate equivalent to the capacity.
-     * 
-     * @see ComponentEnergyStorage#ItemEnergyStorage(ItemStack, DataComponentType, int, int, int)
      */
-    public ComponentEnergyStorage(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity) {
+    public ComponentEnergyBuffer(MutableDataComponentHolder parent, DataComponentType<Integer> energyComponent, int capacity) {
         this(parent, energyComponent, capacity, capacity);
     }
 
     @Override
-    public int receiveEnergy(int toReceive, boolean simulate) {
-        if (!canReceive() || toReceive <= 0) {
+    public int size() {
+        return 1;
+    }
+
+    @Override
+    public int insert(int index, int amount, TransferAction action) {
+        if (!allowsInsertion(index) || amount <= 0) {
             return 0;
         }
 
-        int energy = this.getEnergyStored();
-        int energyReceived = Mth.clamp(this.capacity - energy, 0, Math.min(this.maxReceive, toReceive));
-        if (!simulate && energyReceived > 0) {
-            this.setEnergy(energy + energyReceived);
+        int energy = this.getAmount(index);
+        int energyReceived = Mth.clamp(this.capacity - energy, 0, Math.min(this.maxReceive, amount));
+        if (action.isExecuting() && energyReceived > 0) {
+            set(index, energy + energyReceived);
         }
         return energyReceived;
     }
 
     @Override
-    public int extractEnergy(int toExtract, boolean simulate) {
-        if (!canExtract() || toExtract <= 0) {
+    public int insert(int amount, TransferAction action) {
+        return insert(0, amount, action);
+    }
+
+    @Override
+    public int extract(int index, int amount, TransferAction action) {
+        if (!allowsExtraction() || amount <= 0) {
             return 0;
         }
 
-        int energy = this.getEnergyStored();
-        int energyExtracted = Math.min(energy, Math.min(this.maxExtract, toExtract));
-        if (!simulate && energyExtracted > 0) {
-            this.setEnergy(energy - energyExtracted);
+        int energy = getAmount(index);
+        int energyExtracted = Math.min(energy, Math.min(this.maxExtract, amount));
+        if (action.isExecuting() && energyExtracted > 0) {
+            set(index, energy - energyExtracted);
         }
         return energyExtracted;
     }
 
     @Override
-    public int getEnergyStored() {
+    public int extract(int amount, TransferAction action) {
+        return extract(0, amount, action);
+    }
+
+    @Override
+    public int getAmount(int index) {
         int rawEnergy = this.parent.getOrDefault(this.energyComponent, 0);
         return Mth.clamp(rawEnergy, 0, this.capacity);
     }
 
+
     @Override
-    public int getMaxEnergyStored() {
+    public int getCapacity(int index) {
         return this.capacity;
     }
 
     @Override
-    public boolean canExtract() {
+    public boolean allowsInsertion() {
+        return allowsInsertion(0);
+    }
+
+    @Override
+    public boolean allowsExtraction() {
+        return allowsExtraction(0);
+    }
+
+    @Override
+    public boolean allowsExtraction(int index) {
         return this.maxExtract > 0;
     }
 
     @Override
-    public boolean canReceive() {
+    public boolean allowsInsertion(int index) {
         return this.maxReceive > 0;
     }
 
     /**
      * Writes a new energy value to the data component. Clamps to [0, capacity]
-     * 
+     *
      * @param energy The new energy value
      */
-    protected void setEnergy(int energy) {
+    public void set(int index, int energy) {
         int realEnergy = Mth.clamp(energy, 0, this.capacity);
         this.parent.set(this.energyComponent, realEnergy);
     }

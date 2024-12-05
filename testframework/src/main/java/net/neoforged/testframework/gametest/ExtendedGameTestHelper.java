@@ -215,6 +215,22 @@ public class ExtendedGameTestHelper extends GameTestHelper {
         return capability;
     }
 
+    public <N> void assertValueNotEqual(N objA, N objB, String message) {
+        if (objA.equals(objB)) {
+            throw new GameTestAssertException("Expected " + message + " to not be " + objB + ", but was " + objA);
+        }
+    }
+
+    public void assertNull(@Nullable Object obj, String message){
+        if(obj == null) return;
+        throw new GameTestAssertException(message);
+    }
+
+    public void assertNonNull(@Nullable Object obj, String message){
+        if(obj != null) return;
+        throw new GameTestAssertException(message);
+    }
+
     public <T> ParametrizedGameTestSequence<T> startSequence(Supplier<T> value) {
         return new ParametrizedGameTestSequence<>(this.testInfo, this.startSequence(), value);
     }

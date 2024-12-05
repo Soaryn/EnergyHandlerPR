@@ -14,7 +14,10 @@ package net.neoforged.neoforge.energy;
  * IEnergyStorage storage = stack.getCapability(ForgeCapabilities.ENERGY).orElse(EmptyEnergyStorage.INSTANCE);
  * // Use storage without checking whether it's present.
  * }</pre>
+ *
+ * @deprecated {@link net.neoforged.neoforge.transfer.EnergyHandlerUtil#EMPTY}
  */
+@Deprecated(since = "1.21.4", forRemoval = true)
 public class EmptyEnergyStorage implements IEnergyStorage {
     public static final EmptyEnergyStorage INSTANCE = new EmptyEnergyStorage();
 

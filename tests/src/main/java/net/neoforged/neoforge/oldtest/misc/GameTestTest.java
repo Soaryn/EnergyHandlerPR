@@ -30,8 +30,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -39,6 +37,9 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.transfer.TransferAction;
+import net.neoforged.neoforge.transfer.energy.EnergyBuffer;
+import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
 import org.jetbrains.annotations.Nullable;
 
 @Mod(GameTestTest.MODID)
@@ -72,7 +73,7 @@ public class GameTestTest {
     }
 
     private void registerCaps(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ENERGY_BLOCK_ENTITY.get(), (be, side) -> be.energyStorage);
+        event.registerBlockEntity(Capabilities.EnergyHandler.BLOCK, ENERGY_BLOCK_ENTITY.get(), (be, side) -> be.energyStorage);
     }
 
     @SubscribeEvent
@@ -164,16 +165,16 @@ public class GameTestTest {
         helper.setBlock(energyPos, ENERGY_BLOCK.get());
 
         // Queries the energy capability
-        IEnergyStorage energyStorage = helper.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, helper.absolutePos(energyPos), null);
+        IEnergyHandler energyStorage = helper.getLevel().getCapability(Capabilities.EnergyHandler.BLOCK, helper.absolutePos(energyPos), null);
         if (energyStorage == null) {
             helper.fail("Expected energy storage", energyPos);
         }
 
         // Adds 2000 FE, but our energy storage can only hold 1000 FE
-        energyStorage.receiveEnergy(2000, false);
+        energyStorage.insert(2000, TransferAction.EXECUTE);
 
         // Fails test if stored energy is not equal to 1000 FE
-        int energy = energyStorage.getEnergyStored();
+        int energy = energyStorage.getAmount(0);
         int target = 1000;
         if (energy != target) {
             helper.fail("Expected energy=" + target + " but it was energy=" + energy, energyPos);
@@ -195,7 +196,7 @@ public class GameTestTest {
     }
 
     private static class EnergyBlockEntity extends BlockEntity {
-        private final EnergyStorage energyStorage = new EnergyStorage(1000);
+        private final EnergyBuffer energyStorage = EnergyBuffer.Builder.create(1, 1000).build();
 
         public EnergyBlockEntity(BlockPos pos, BlockState state) {
             super(ENERGY_BLOCK_ENTITY.get(), pos, state);
