@@ -37,6 +37,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.transfer.EnergyHandlerUtil;
 import net.neoforged.neoforge.transfer.TransferAction;
 import net.neoforged.neoforge.transfer.energy.EnergyBuffer;
 import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
@@ -196,7 +197,7 @@ public class GameTestTest {
     }
 
     private static class EnergyBlockEntity extends BlockEntity {
-        private final EnergyBuffer energyStorage = EnergyBuffer.Builder.create(1, 1000).build();
+        private final EnergyBuffer energyStorage = EnergyBuffer.Builder.create(1, 1000).maxTransferRate(EnergyHandlerUtil.MAX_VALUE).build();
 
         public EnergyBlockEntity(BlockPos pos, BlockState state) {
             super(ENERGY_BLOCK_ENTITY.get(), pos, state);

@@ -6,7 +6,6 @@
 package net.neoforged.neoforge.debug.capabilities;
 
 import com.mojang.serialization.Codec;
-
 import java.util.Objects;
 import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponentType;
@@ -54,8 +53,8 @@ public class ItemEnergyTests {
         framework.modEventBus().<RegisterCapabilitiesEvent>addListener(e -> {
             e.registerItem(
                     Capabilities.EnergyHandler.ITEM, (stack, ctx) -> {
-                return new ComponentEnergyBuffer(stack, ENERGY_COMPONENT.get(), MAX_CAPACITY);
-            }, BATTERY);
+                        return new ComponentEnergyBuffer(stack, ENERGY_COMPONENT.get(), MAX_CAPACITY);
+                    }, BATTERY);
         });
     }
 
@@ -66,7 +65,7 @@ public class ItemEnergyTests {
         test.onGameTest(helper -> {
             ItemStack stack = BATTERY.toStack();
             IEnergyHandler energy = stack.getCapability(Capabilities.EnergyHandler.ITEM);
-            Objects.requireNonNull(energy,"EnergyHandler must not be null.");
+            Objects.requireNonNull(energy, "EnergyHandler must not be null.");
 
             helper.assertValueEqual(EnergyHandlerUtil.getAmount(energy), MAX_CAPACITY, "Default stored energy should be equal to the max capacity.");
 

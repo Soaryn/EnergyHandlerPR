@@ -22,7 +22,7 @@ import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
  * To use this class, register a new {@link DataComponentType} which holds an {@link Integer} for your item.
  * Then reference that component from your {@link ICapabilityProvider} passed to {@link RegisterCapabilitiesEvent#registerItem} to create an instance of this class.
  */
-public class ComponentEnergyBuffer implements IEnergyHandler.IEnergyHandlerModifiable {
+public class ComponentEnergyBuffer implements IEnergyHandler.Modifiable {
     protected final MutableDataComponentHolder parent;
     protected final DataComponentType<Integer> energyComponent;
     protected final int capacity;
@@ -71,7 +71,7 @@ public class ComponentEnergyBuffer implements IEnergyHandler.IEnergyHandlerModif
             return 0;
         }
 
-        int energy = this.getAmount(index);
+        int energy = getAmount(index);
         int energyReceived = Mth.clamp(this.capacity - energy, 0, Math.min(this.maxReceive, amount));
         if (action.isExecuting() && energyReceived > 0) {
             set(index, energy + energyReceived);
@@ -108,7 +108,6 @@ public class ComponentEnergyBuffer implements IEnergyHandler.IEnergyHandlerModif
         int rawEnergy = this.parent.getOrDefault(this.energyComponent, 0);
         return Mth.clamp(rawEnergy, 0, this.capacity);
     }
-
 
     @Override
     public int getCapacity(int index) {

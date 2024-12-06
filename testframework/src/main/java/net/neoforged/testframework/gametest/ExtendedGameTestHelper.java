@@ -221,13 +221,13 @@ public class ExtendedGameTestHelper extends GameTestHelper {
         }
     }
 
-    public void assertNull(@Nullable Object obj, String message){
-        if(obj == null) return;
+    public void assertNull(@Nullable Object obj, String message) {
+        if (obj == null) return;
         throw new GameTestAssertException(message);
     }
 
-    public void assertNonNull(@Nullable Object obj, String message){
-        if(obj != null) return;
+    public void assertNonNull(@Nullable Object obj, String message) {
+        if (obj != null) return;
         throw new GameTestAssertException(message);
     }
 

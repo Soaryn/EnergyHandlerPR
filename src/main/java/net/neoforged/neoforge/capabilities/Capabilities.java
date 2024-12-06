@@ -7,7 +7,6 @@ package net.neoforged.neoforge.capabilities;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -22,7 +21,8 @@ public final class Capabilities {
         public static final BlockCapability<IEnergyHandler, @Nullable Direction> BLOCK = BlockCapability.createSided(create("energy"), IEnergyHandler.class);
         public static final EntityCapability<IEnergyHandler, @Nullable Direction> ENTITY = EntityCapability.createSided(create("energy"), IEnergyHandler.class);
         public static final ItemCapability<IEnergyHandler, @Nullable Void> ITEM = ItemCapability.createVoid(create("energy"), IEnergyHandler.class);
-        private EnergyHandler() { }
+
+        private EnergyHandler() {}
     }
 
     /**
@@ -30,9 +30,9 @@ public final class Capabilities {
      */
     @Deprecated(since = "1.21.4", forRemoval = true)
     public static final class EnergyStorage {
-        public static final BlockCapability<IEnergyStorage, @Nullable Direction> BLOCK = BlockCapability.createSided(create("energy"), IEnergyStorage.class);
-        public static final EntityCapability<IEnergyStorage, @Nullable Direction> ENTITY = EntityCapability.createSided(create("energy"), IEnergyStorage.class);
-        public static final ItemCapability<IEnergyStorage, @Nullable Void> ITEM = ItemCapability.createVoid(create("energy"), IEnergyStorage.class);
+        public static final BlockCapability<IEnergyHandler, @Nullable Direction> BLOCK = EnergyHandler.BLOCK;
+        public static final EntityCapability<IEnergyHandler, @Nullable Direction> ENTITY = EnergyHandler.ENTITY;
+        public static final ItemCapability<IEnergyHandler, @Nullable Void> ITEM = EnergyHandler.ITEM;
 
         private EnergyStorage() {}
     }
@@ -59,12 +59,12 @@ public final class Capabilities {
         public static final EntityCapability<IItemHandler, @Nullable Direction> ENTITY_AUTOMATION = EntityCapability.createSided(create("item_handler_automation"), IItemHandler.class);
         public static final ItemCapability<IItemHandler, @Nullable Void> ITEM = ItemCapability.createVoid(create("item_handler"), IItemHandler.class);
 
-        private ItemHandler() { }
+        private ItemHandler() {}
     }
 
     private static ResourceLocation create(String path) {
         return ResourceLocation.fromNamespaceAndPath("neoforge", path);
     }
 
-    private Capabilities() { }
+    private Capabilities() {}
 }
