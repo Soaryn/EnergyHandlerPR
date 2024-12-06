@@ -10,7 +10,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.transfer.energy.EnergyBuffer;
+import net.neoforged.neoforge.transfer.energy.templates.EnergyBuffer;
 
 /**
  * Reference implementation of {@link IEnergyStorage}. Use/extend this or implement your own.

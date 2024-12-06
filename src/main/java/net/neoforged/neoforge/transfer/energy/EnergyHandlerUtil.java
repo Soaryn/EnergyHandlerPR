@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-only
  */
 
-package net.neoforged.neoforge.transfer;
+package net.neoforged.neoforge.transfer.energy;
 
+import net.neoforged.neoforge.transfer.TransferAction;
 import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
 import org.jetbrains.annotations.Range;
 

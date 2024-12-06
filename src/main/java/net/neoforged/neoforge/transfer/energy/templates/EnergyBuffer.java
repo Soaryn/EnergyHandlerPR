@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: LGPL-2.1-only
  */
 
-package net.neoforged.neoforge.transfer.energy;
+package net.neoforged.neoforge.transfer.energy.templates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.transfer.EnergyHandlerUtil;
 import net.neoforged.neoforge.transfer.TransferAction;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 import net.neoforged.neoforge.transfer.handlers.IEnergyHandler;
 import org.jetbrains.annotations.Range;
 

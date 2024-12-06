@@ -5,8 +5,9 @@
 
 package net.neoforged.neoforge.transfer.handlers;
 
-import net.neoforged.neoforge.transfer.EnergyHandlerUtil;
 import net.neoforged.neoforge.transfer.TransferAction;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.energy.templates.EnergyBuffer;
 import org.jetbrains.annotations.Range;
 
 // Primer Notes:
@@ -140,7 +141,7 @@ public interface IEnergyHandler {
      * Inserts a given amount into the handler. Distribution is up to the handler.
      * <p>
      * When implementing, it is advised to not make this call {@link IEnergyHandler#insert(int, int, TransferAction) insert(index, ...)} for each index directly,
-     * but rather reuse the logic already checked. See {@link net.neoforged.neoforge.transfer.energy.EnergyBuffer#insertCommon(int, int, TransferAction) EnergyBuffer.insertCommon} for a reference of an implementation.
+     * but rather reuse the logic already checked. See {@link EnergyBuffer#insertCommon(int, int, TransferAction) EnergyBuffer.insertCommon} for a reference of an implementation.
      *
      * @param amount The amount to insert.
      * @param action The kind of action being performed. {@link TransferAction#SIMULATE} will simulate the action
@@ -170,7 +171,7 @@ public interface IEnergyHandler {
      * Extracts a given amount from the handler. Distribution is up to the handler.
      * <p>
      * When implementing, it is advised to not make this call {@link IEnergyHandler#extract(int, int, TransferAction) extract(index, ...)} for each index directly,
-     * but rather reuse the logic already checked. See {@link net.neoforged.neoforge.transfer.energy.EnergyBuffer#extractCommon(int, int, TransferAction) EnergyBuffer.extractCommon} for a reference of an implementation.
+     * but rather reuse the logic already checked. See {@link EnergyBuffer#extractCommon(int, int, TransferAction) EnergyBuffer.extractCommon} for a reference of an implementation.
      *
      * @param amount The amount of the resource to extract.
      * @param action The kind of action being performed. {@link TransferAction#SIMULATE} will simulate the action

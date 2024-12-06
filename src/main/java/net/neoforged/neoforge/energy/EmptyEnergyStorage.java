@@ -5,6 +5,8 @@
 
 package net.neoforged.neoforge.energy;
 
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+
 /**
  * Implementation of {@link IEnergyStorage} that cannot store, receive, or provide energy.
  * Use the {@link #INSTANCE}, don't instantiate. Example:
@@ -15,7 +17,7 @@ package net.neoforged.neoforge.energy;
  * // Use storage without checking whether it's present.
  * }</pre>
  *
- * @deprecated {@link net.neoforged.neoforge.transfer.EnergyHandlerUtil#EMPTY}
+ * @deprecated {@link EnergyHandlerUtil#EMPTY}
  */
 @Deprecated(since = "1.21.4", forRemoval = true)
 public class EmptyEnergyStorage implements IEnergyStorage {
