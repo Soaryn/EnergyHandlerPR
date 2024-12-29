@@ -7,10 +7,8 @@ package net.neoforged.neoforge.transfer.energy.templates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import java.util.Objects;
 import java.util.stream.IntStream;
-
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.transfer.TransferAction;
 import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
@@ -37,8 +35,7 @@ public final class EnergyBuffer implements IEnergyHandler.Modifiable {
             Codec.INT.fieldOf("capacity").forGetter(data -> data.capacity),
             Codec.INT.fieldOf("max_insertion").forGetter(data -> data.maxInsert),
             Codec.INT.fieldOf("max_extraction").forGetter(data -> data.maxExtract),
-            Codec.INT_STREAM.fieldOf("energy").xmap(IntStream::toArray, IntStream::of).forGetter(data -> data.energy)
-    ).apply(instance, EnergyBuffer::new));
+            Codec.INT_STREAM.fieldOf("energy").xmap(IntStream::toArray, IntStream::of).forGetter(data -> data.energy)).apply(instance, EnergyBuffer::new));
 
     /**
      * Number of sub-buffers
@@ -239,7 +236,7 @@ public final class EnergyBuffer implements IEnergyHandler.Modifiable {
         protected int maxInsertRate;
         protected int maxExtractRate;
 
-        private Builder() { }
+        private Builder() {}
 
         /**
          * Creates a builder of a specified size, and capacity. This is the advised way to make an {@link EnergyBuffer}.
