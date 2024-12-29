@@ -6,7 +6,7 @@
 package net.neoforged.neoforge.transfer;
 
 /**
- * Represents an action that can be taken when transferring resources.
+ * Represents an action that can be taken when transferring resources or energy for example.
  * <br>
  * {@link #SIMULATE} will simulate the action, allowing the caller to determine the outcome without actually performing the action.
  * <br>

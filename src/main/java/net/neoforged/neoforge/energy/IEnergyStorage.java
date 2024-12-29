@@ -60,7 +60,7 @@ public interface IEnergyStorage extends IEnergyHandler {
      */
     boolean canReceive();
 
-    //These are only added to allow easier developer ease into IEnergyHandler.
+    //These are only added to allow easier developer migration to IEnergyHandler.
     // It is not advised to use these overrides, and rather look at EnergyBuffer as a reference
     @Override
     default int size() {

@@ -7,8 +7,10 @@ package net.neoforged.neoforge.transfer.energy.templates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import java.util.Objects;
 import java.util.stream.IntStream;
+
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.transfer.TransferAction;
 import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
@@ -22,20 +24,21 @@ import org.jetbrains.annotations.Range;
  * It is recommended to make your own implementation of {@link IEnergyHandler}, especially if you need multiple "sub buffers".
  * <p>
  * It is recommended to use the {@link EnergyBuffer.Builder} to construct an {@link EnergyBuffer} such as:
- * 
+ *
  * <pre>
  * {@code
  * ComplexEnergyBuffer.Builder.create(3, 1000).maxTransfer(10).build();
  * }
  * </pre>
  */
-public class EnergyBuffer implements IEnergyHandler.Modifiable {
+public final class EnergyBuffer implements IEnergyHandler.Modifiable {
     public static Codec<EnergyBuffer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("size").forGetter(data -> data.size),
             Codec.INT.fieldOf("capacity").forGetter(data -> data.capacity),
             Codec.INT.fieldOf("max_insertion").forGetter(data -> data.maxInsert),
             Codec.INT.fieldOf("max_extraction").forGetter(data -> data.maxExtract),
-            Codec.INT_STREAM.fieldOf("energy").xmap(IntStream::toArray, IntStream::of).forGetter(data -> data.energy)).apply(instance, EnergyBuffer::new));
+            Codec.INT_STREAM.fieldOf("energy").xmap(IntStream::toArray, IntStream::of).forGetter(data -> data.energy)
+    ).apply(instance, EnergyBuffer::new));
 
     /**
      * Number of sub-buffers
@@ -73,7 +76,7 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
      * Use of constructor is allowed, but it is HIGHLY recommended to use the builder.
      * <p>
      * Example:
-     * 
+     *
      * <pre>
      * {@code
      * //Creates a buffer that has 3 sub-buffers each with a capacity of 1000,
@@ -136,7 +139,6 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
 
     @Override
     public int insert(int index, int amount, TransferAction action) {
-        //This check is done per external index call
         Objects.checkIndex(index, size());
         amount = Math.min(maxInsert, amount);
         if (amount <= 0) return 0;
@@ -144,18 +146,20 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
         return insertCommon(index, amount, action);
     }
 
-    //TODO at the time of writing this PR, IResourceHandler was still in development and not available to link in java doc.
     /**
-     * This was chosen to be separate from {@link EnergyBuffer#insert(int, int, TransferAction)} to provide both parity with the {@link IResourceHandler} as well as allow more accurate index checks when doing the loop variant.
+     * This was chosen to be separate from {@link EnergyBuffer#insert(int, int, TransferAction)} to provide both parity
+     * with the IResourceHandler and allow more accurate index checks when doing the loop variant.
      * <p>
      * The added benefit is less double-checking in runtime on data we already know
      */
     private int insertCommon(int index, int amount, TransferAction action) {
-        if (!allowsInsertion(index)) return 0;
-        var currentAmount = energy[index];
-        int inserted = Math.min(capacity - currentAmount, amount);
+        //instead of asking allowsInsert(index) we can skip the extra bounds check.
+        if (maxInsert <= 0) return 0;
+        if (energy[index] == capacity) return 0;
+
+        int inserted = Math.min(capacity - energy[index], amount);
         if (action.isExecuting())
-            energy[index] = currentAmount + inserted;
+            energy[index] += inserted;
         return inserted;
     }
 
@@ -188,14 +192,13 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
      * own validations for their respective calls. Avoids double-checking certain validations
      */
     private int extractCommon(int index, int amount, TransferAction action) {
-        if (amount <= 0) return 0;
-        if (!allowsExtraction(index)) return 0;
-        var currentAmount = energy[index];
-        if (currentAmount == 0) return 0;
+        //instead of allowsExtraction(index) we can reference directly for the same effect to skip an unnecessary bounds check
+        if (maxExtract <= 0) return 0;
+        if (energy[index] == 0) return 0;
 
-        int handledAmount = Math.min(currentAmount, amount);
+        int handledAmount = Math.min(energy[index], amount);
         if (action.isExecuting())
-            energy[index] = currentAmount - handledAmount;
+            energy[index] -= handledAmount;
         return handledAmount;
     }
 
@@ -208,25 +211,25 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
     @Override
     public int getCapacity(int index) {
         Objects.checkIndex(index, size());
-        return this.capacity;
+        return capacity;
     }
 
     @Override
     public boolean allowsInsertion(int index) {
         Objects.checkIndex(index, size());
-        return this.maxInsert > 0;
+        return maxInsert > 0;
     }
 
     @Override
     public boolean allowsExtraction(int index) {
         Objects.checkIndex(index, size());
-        return this.maxExtract > 0;
+        return maxExtract > 0;
     }
 
     @Override
     public void set(int index, @Range(from = 0, to = EnergyHandlerUtil.MAX_VALUE) int amount) {
         Objects.checkIndex(index, size());
-        energy[index] = Mth.clamp(amount, 0, this.capacity);
+        energy[index] = Mth.clamp(amount, 0, capacity);
     }
 
     public static class Builder {
@@ -236,7 +239,7 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
         protected int maxInsertRate;
         protected int maxExtractRate;
 
-        private Builder() {}
+        private Builder() { }
 
         /**
          * Creates a builder of a specified size, and capacity. This is the advised way to make an {@link EnergyBuffer}.
@@ -288,7 +291,7 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
          */
         public Builder energy(@Range(from = 0, to = EnergyHandlerUtil.MAX_VALUE) int index, @Range(from = 0, to = EnergyHandlerUtil.MAX_VALUE) int amount) {
             Objects.checkIndex(index, size);
-            energy[index] = amount;
+            this.energy[index] = amount;
             return this;
         }
 
@@ -298,7 +301,7 @@ public class EnergyBuffer implements IEnergyHandler.Modifiable {
          */
         public Builder energy(@Range(from = 0, to = EnergyHandlerUtil.MAX_VALUE) int amount) {
             for (int index = 0; index < size; index++) {
-                energy[index] = amount;
+                this.energy[index] = amount;
             }
             return this;
         }

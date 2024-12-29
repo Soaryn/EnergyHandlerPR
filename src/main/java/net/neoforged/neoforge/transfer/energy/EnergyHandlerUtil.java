@@ -73,8 +73,6 @@ public final class EnergyHandlerUtil {
      */
     @Range(from = 0, to = EnergyHandlerUtil.MAX_VALUE)
     public static int getAmount(IEnergyHandler handler) {
-        var t = 9223372036854775807L;
-        var s = -9223372036854775808L;
         var sum = 0;
         for (var i = 0; i < handler.size(); i++) {
             var amount = handler.getAmount(i);

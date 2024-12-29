@@ -31,11 +31,11 @@ import org.jetbrains.annotations.Range;
  * To use Neo's energy capability see the {@link net.neoforged.neoforge.capabilities.Capabilities.EnergyHandler#BLOCK EnergyCapability} in {@link net.neoforged.neoforge.capabilities.Capabilities Capabilities}.
  * <br>
  * To make your own energy system using this interface, you can register a new capability using something like the following.
- * 
+ *
  * <pre>
  * {@code public static final BlockCapability<IEnergyHandler, @Nullable Direction> BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath([MOD_ID], [CUSTOM_ENERGY_NAME]), IEnergyHandler.class);}
  * </pre>
- * 
+ * <p>
  * This would effectively create a new capability that other mods could utilize so long as they create a new capability with the same id without needing any extra API provided by you.
  */
 public interface IEnergyHandler {
@@ -105,9 +105,9 @@ public interface IEnergyHandler {
      * <b>PRIMER: New</b>
      * <p>
      * An estimation of or hint if {@link IEnergyHandler#insert} would result in any energy. This should not be used to determine if something is full, nor should it return as such.
-     * A typical use case is identifying which implementations of {@link IEnergyHandler} in a group would be able to be extractable.
+     * A typical use case is identifying which implementations of {@link IEnergyHandler} in a group would be able to be insertable.
      * <p>
-     * <b>IMPORTANT:</b> This doesn't add any control, this is merely a guide for things like pipes to know ahead of time if it can be ever extracted from.
+     * <b>IMPORTANT:</b> This doesn't add any control, this is merely a guide for things like pipes to know ahead of time if it can be ever inserted into.
      *
      * @param index The index to check
      */
@@ -115,6 +115,11 @@ public interface IEnergyHandler {
 
     /**
      * <b>PRIMER: New</b>
+     * <p>
+     * An estimation of or hint if {@link IEnergyHandler#extract} would result in any energy. This should not be used to determine if something is empty, nor should it return as such.
+     * A typical use case is identifying which implementations of {@link IEnergyHandler} in a group would be able to be extractable regardless of amount stored.
+     * <p>
+     * <b>IMPORTANT:</b> This doesn't add any control, this is merely a guide for things like pipes to know ahead of time if it can be ever extracted from.
      *
      * @param index The index to check
      * @return True if at the given index, the handler can be extracted from, false otherwise.
